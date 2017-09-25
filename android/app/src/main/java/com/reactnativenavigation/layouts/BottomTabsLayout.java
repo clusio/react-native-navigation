@@ -142,7 +142,6 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
         procedureButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "sendEvent", Toast.LENGTH_SHORT).show();
                 NavigationApplication.instance.getEventEmitter().sendAddProcedureEvent(getCurrentScreenStack().peek().getScreenParams().getNavigatorEventId());
             }
         });
