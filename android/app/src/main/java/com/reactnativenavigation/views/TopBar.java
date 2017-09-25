@@ -7,8 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.util.Pair;
-import android.support.v7.app.ActionBar;
-import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -20,7 +18,6 @@ import com.reactnativenavigation.params.NavigationParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
-import com.reactnativenavigation.screens.Screen;
 import com.reactnativenavigation.utils.ViewUtils;
 
 import java.util.List;
@@ -140,15 +137,9 @@ public class TopBar extends AppBarLayout {
     }
 
     private void addCenteredReactView(final ContentView view, int height) {
-        titleBar.addView(view, new LayoutParams(WRAP_CONTENT, height));
-        view.setOnDisplayListener(new Screen.OnDisplayListener() {
-            @Override
-            public void onDisplay() {
-                view.getLayoutParams().width = (int) (float) view.getChildAt(0).getMeasuredWidth();
-                ((ActionBar.LayoutParams) view.getLayoutParams()).gravity = Gravity.CENTER;
-                view.requestLayout();
-            }
-        });
+        view.setLayoutParams(new LayoutParams(MATCH_PARENT, height));
+        titleBar.addView(view);
+        titleBar.setContentInsetsAbsolute(0, 0);
     }
 
     public void setButtonColor(StyleParams styleParams) {

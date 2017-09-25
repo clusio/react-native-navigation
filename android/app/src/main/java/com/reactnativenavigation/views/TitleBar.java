@@ -4,8 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
@@ -37,6 +37,7 @@ public class TitleBar extends Toolbar {
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
+
         if (child instanceof ActionMenuView) {
             actionMenuView = (ActionMenuView) child;
         }

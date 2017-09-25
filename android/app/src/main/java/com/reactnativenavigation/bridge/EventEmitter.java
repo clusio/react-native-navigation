@@ -34,6 +34,10 @@ public class EventEmitter {
         sendGlobalScreenChangedEvent("didDisappear", params.timestamp, params.screenId, type);
     }
 
+    public void sendAddProcedureEvent(String navigatorEventId) {
+        sendScreenChangedEventToJsScreen("addProcedure", navigatorEventId);
+    }
+
     private void sendScreenChangedEventToJsScreen(String eventId, String navigatorEventId) {
         WritableMap map = Arguments.createMap();
         map.putString("type", "ScreenChangedEvent");

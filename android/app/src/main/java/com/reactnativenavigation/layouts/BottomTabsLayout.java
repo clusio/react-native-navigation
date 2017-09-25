@@ -1,19 +1,24 @@
 package com.reactnativenavigation.layouts;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableMap;
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.R;
 import com.reactnativenavigation.events.EventBus;
 import com.reactnativenavigation.events.ScreenChangedEvent;
 import com.reactnativenavigation.params.ActivityParams;
@@ -50,6 +55,7 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
 
     private ActivityParams params;
     private SnackbarAndFabContainer snackbarAndFabContainer;
+    private ImageView procedureButton;
     private BottomTabs bottomTabs;
     private ScreenStack[] screenStacks;
     private final SideMenuParams leftSideMenuParams;
@@ -73,8 +79,10 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
     private void createLayout() {
         createSideMenu();
         createBottomTabs();
+        createProcedureButton();
         addBottomTabs();
         addScreenStacks();
+        addProcedureButton();
         createSnackbarContainer();
         showInitialScreenStack();
         setInitialTabIndex();
@@ -124,10 +132,37 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
         bottomTabs.addTabs(params.tabParams, this);
     }
 
+    private void createProcedureButton() {
+        procedureButton = new ImageView(getContext());
+        procedureButton.setScaleType(ImageView.ScaleType.FIT_XY);
+        procedureButton.setImageResource(R.drawable.ic_btn_add);
+        if (Build.VERSION.SDK_INT >= 21)
+            procedureButton.setTranslationZ(100);
+
+        procedureButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "sendEvent", Toast.LENGTH_SHORT).show();
+                NavigationApplication.instance.getEventEmitter().sendAddProcedureEvent(getCurrentScreenStack().peek().getScreenParams().getNavigatorEventId());
+            }
+        });
+    }
+
     private void addBottomTabs() {
         LayoutParams lp = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         lp.addRule(ALIGN_PARENT_BOTTOM);
         getScreenStackParent().addView(bottomTabs, lp);
+    }
+
+    private void addProcedureButton() {
+        float px62 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 62, getResources().getDisplayMetrics());
+        float px6 = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
+
+        LayoutParams lp = new LayoutParams((int) px62, (int) px62);
+        lp.addRule(ALIGN_PARENT_BOTTOM);
+        lp.addRule(CENTER_HORIZONTAL);
+        lp.bottomMargin = (int) px6;
+        getScreenStackParent().addView(procedureButton, lp);
     }
 
     private void createSnackbarContainer() {
@@ -424,6 +459,8 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
     public boolean onTabSelected(int position, boolean wasSelected) {
         if (wasSelected) {
             sendTabReselectedEventToJs();
+            return false;
+        } else if (position == 2) {
             return false;
         }
 
