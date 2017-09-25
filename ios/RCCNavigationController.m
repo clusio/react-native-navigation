@@ -107,6 +107,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         [mergedStyle removeObjectForKey:@"disabledBackGesture"];
         [mergedStyle removeObjectForKey:@"disabledSimultaneousGesture"];
         [mergedStyle removeObjectForKey:@"navBarCustomView"];
+        [mergedStyle removeObjectForKey:@"navBarCustomHeight"];
         [mergedStyle removeObjectForKey:@"navBarComponentAlignment"];
         
         [mergedStyle addEntriesFromDictionary:navigatorStyle];
@@ -453,7 +454,6 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
   [super pushViewController:viewController animated:animated];
 }
 
-
 #pragma mark - UINavigationControllerDelegate
 
 
@@ -475,3 +475,4 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
 
 
 @end
+

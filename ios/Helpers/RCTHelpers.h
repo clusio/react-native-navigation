@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTRootView.h>
-
 @interface RCTHelpers : NSObject
 +(BOOL)removeYellowBox:(RCTRootView*)reactRootView;
 + (NSMutableDictionary *)textAttributesFromDictionary:(NSDictionary *)dictionary withPrefix:(NSString *)prefix;

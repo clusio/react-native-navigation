@@ -258,6 +258,8 @@
   UIImage *image = backButtonImage ? [RCTConvert UIImage:backButtonImage] : nil;
   [[UINavigationBar appearance] setBackIndicatorImage:image];
   [[UINavigationBar appearance] setBackIndicatorTransitionMaskImage:image];
+  [[UINavigationBar appearance] setBackgroundImage:[[UIImage alloc] init] forBarMetrics:UIBarMetricsDefault];
+  [[UINavigationBar appearance] setShadowImage:[[UIImage alloc] init]];
 }
 
 

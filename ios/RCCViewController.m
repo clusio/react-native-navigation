@@ -12,7 +12,6 @@
 #import "RCCTitleViewHelper.h"
 #import "RCCCustomTitleView.h"
 
-
 NSString* const RCCViewControllerCancelReactTouchesNotification = @"RCCViewControllerCancelReactTouchesNotification";
 
 const NSInteger BLUR_STATUS_TAG = 78264801;
@@ -309,6 +308,38 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   [self sendGlobalScreenEvent:@"didAppear" endTimestampString:[self getTimestampString] shouldReset:YES];
   [self sendScreenChangedEvent:@"didAppear"];
   
+  
+  NSString *navBarCustomView = self.navigatorStyle[@"navBarCustomView"];
+  NSNumber *navBarCustomHeight = self.navigatorStyle[@"navBarCustomHeight"];
+  if (navBarCustomView) {
+    UINavigationBar *navBar = [self.view.subviews objectAtIndex:1];
+    for (UIView *subview in navBar.subviews) {
+      if (abs(subview.frame.size.height - navBarCustomHeight.floatValue) > 5) {
+        [subview setFrame:CGRectMake(0, 0, subview.frame.size.width, navBarCustomHeight.floatValue)];
+      }
+    }
+  }
+  
+  if (self.tabBarController) {
+    UIView *parent = self.tabBarController.view;
+    UIView *ref = self.tabBarController.tabBar;
+
+    UIImageView *btnAdd = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"btn_add"]];
+    btnAdd.layer.cornerRadius = 31;
+    btnAdd.layer.masksToBounds = YES;
+    [btnAdd setFrame:CGRectMake(parent.frame.size.width / 2 - 31, ref.frame.origin.y - 20, 62, 62)];
+    [parent addSubview:btnAdd];
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapDetected)];
+    singleTap.numberOfTapsRequired = 1;
+    [btnAdd setUserInteractionEnabled:YES];
+    [btnAdd addGestureRecognizer:singleTap];
+  }
+}
+
+-(void) tapDetected {
+  [self sendGlobalScreenEvent:@"addProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
+  [self sendScreenChangedEvent:@"addProcedure"];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -350,6 +381,17 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
 
 -(void)setStyleOnAppearForViewController:(UIViewController*)viewController appeared:(BOOL)appeared
 {
+  UINavigationBar *navigationBar;
+  NSString *navBarCustomView = self.navigatorStyle[@"navBarCustomView"];
+  NSNumber *navBarCustomHeight = self.navigatorStyle[@"navBarCustomHeight"];
+  
+  if (navBarCustomView) {
+    CGRect frame = viewController.navigationController.navigationBar.frame;
+    frame.size.height = navBarCustomHeight.floatValue;
+    navigationBar = [[UINavigationBar alloc] initWithFrame:frame];
+  } else {
+    navigationBar = viewController.navigationController.navigationBar;
+  }
   
   NSString *screenBackgroundColor = self.navigatorStyle[@"screenBackgroundColor"];
   if (screenBackgroundColor) {
@@ -367,18 +409,14 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   
   NSString *navBarBackgroundColor = self.navigatorStyle[@"navBarBackgroundColor"];
   if (navBarBackgroundColor) {
-    
     UIColor *color = navBarBackgroundColor != (id)[NSNull null] ? [RCTConvert UIColor:navBarBackgroundColor] : nil;
-    viewController.navigationController.navigationBar.barTintColor = color;
-    
+    navigationBar.barTintColor = color;
   } else {
-    viewController.navigationController.navigationBar.barTintColor = nil;
+    navigationBar.barTintColor = nil;
   }
-  
-  [viewController.navigationController.navigationBar setFrame:CGRectMake(0, 0, viewController.view.frame.size.width, 100)]
-  
+
   NSMutableDictionary *titleTextAttributes = [RCTHelpers textAttributesFromDictionary:self.navigatorStyle withPrefix:@"navBarText" baseFont:[UIFont boldSystemFontOfSize:17]];
-  [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
+  [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];  
   
   if (self.navigationItem.titleView && [self.navigationItem.titleView isKindOfClass:[RCCTitleView class]]) {
     
@@ -422,11 +460,11 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   if (navBarButtonColor) {
     
     UIColor *color = navBarButtonColor != (id)[NSNull null] ? [RCTConvert UIColor:navBarButtonColor] : nil;
-    viewController.navigationController.navigationBar.tintColor = color;
+    navigationBar.tintColor = color;
     
   } else
   {
-    viewController.navigationController.navigationBar.tintColor = nil;
+    navigationBar.tintColor = nil;
   }
   
   BOOL viewControllerBasedStatusBar = false;
@@ -443,7 +481,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   if (finalColorScheme && [finalColorScheme isEqualToString:@"light"]) {
     
     if (!statusBarTextColorSchemeSingleScreen) {
-      viewController.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+      navigationBar.barStyle = UIBarStyleBlack;
     }
     
     self._statusBarTextColorSchemeLight = true;
@@ -456,7 +494,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   } else {
     
     if (!statusBarTextColorSchemeSingleScreen) {
-      viewController.navigationController.navigationBar.barStyle = UIBarStyleDefault;
+      navigationBar.barStyle = UIBarStyleDefault;
     }
     
     self._statusBarTextColorSchemeLight = false;
@@ -477,7 +515,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   NSNumber *navBarHidden = self.navigatorStyle[@"navBarHidden"];
   BOOL navBarHiddenBool = navBarHidden ? [navBarHidden boolValue] : NO;
   if (viewController.navigationController.navigationBarHidden != navBarHiddenBool) {
-    [viewController.navigationController setNavigationBarHidden:navBarHiddenBool animated:YES];
+    [viewController.navigationController setNavigationBarHidden:YES animated: NO];
   }
   
   NSNumber *navBarHideOnScroll = self.navigatorStyle[@"navBarHideOnScroll"];
@@ -502,27 +540,27 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   BOOL navBarBlurBool = navBarBlur ? [navBarBlur boolValue] : NO;
   if (navBarBlurBool) {
     
-    if (![viewController.navigationController.navigationBar viewWithTag:BLUR_NAVBAR_TAG]) {
+    if (![navigationBar viewWithTag:BLUR_NAVBAR_TAG]) {
       [self storeOriginalNavBarImages];
       
-      [viewController.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
-      viewController.navigationController.navigationBar.shadowImage = [UIImage new];
+      [navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
+      navigationBar.shadowImage = [UIImage new];
       UIVisualEffectView *blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]];
       CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-      blur.frame = CGRectMake(0, -1 * statusBarFrame.size.height, viewController.navigationController.navigationBar.frame.size.width, viewController.navigationController.navigationBar.frame.size.height + statusBarFrame.size.height);
+      blur.frame = CGRectMake(0, -1 * statusBarFrame.size.height, navigationBar.frame.size.width, navigationBar.frame.size.height + statusBarFrame.size.height);
       blur.userInteractionEnabled = NO;
       blur.tag = BLUR_NAVBAR_TAG;
-      [viewController.navigationController.navigationBar insertSubview:blur atIndex:0];
-      [viewController.navigationController.navigationBar sendSubviewToBack:blur];
+      [navigationBar insertSubview:blur atIndex:0];
+      [navigationBar sendSubviewToBack:blur];
     }
     
   } else {
     
-    UIView *blur = [viewController.navigationController.navigationBar viewWithTag:BLUR_NAVBAR_TAG];
+    UIView *blur = [navigationBar viewWithTag:BLUR_NAVBAR_TAG];
     if (blur) {
       [blur removeFromSuperview];
-      [viewController.navigationController.navigationBar setBackgroundImage:self.originalNavBarImages[@"bgImage"] forBarMetrics:UIBarMetricsDefault];
-      viewController.navigationController.navigationBar.shadowImage = self.originalNavBarImages[@"shadowImage"];
+      [navigationBar setBackgroundImage:self.originalNavBarImages[@"bgImage"] forBarMetrics:UIBarMetricsDefault];
+      navigationBar.shadowImage = [UIImage new];
       self.originalNavBarImages = nil;
     }
   }
@@ -533,25 +571,25 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   void (^action)() = ^ {
     if (navBarTransparentBool)
     {
-      if (![viewController.navigationController.navigationBar viewWithTag:TRANSPARENT_NAVBAR_TAG])
+      if (![navigationBar viewWithTag:TRANSPARENT_NAVBAR_TAG])
       {
         [self storeOriginalNavBarImages];
         
-        [viewController.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
-        viewController.navigationController.navigationBar.shadowImage = [UIImage new];
+        [navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
+        navigationBar.shadowImage = [UIImage new];
         UIView *transparentView = [[UIView alloc] initWithFrame:CGRectZero];
         transparentView.tag = TRANSPARENT_NAVBAR_TAG;
-        [viewController.navigationController.navigationBar insertSubview:transparentView atIndex:0];
+        [navigationBar insertSubview:transparentView atIndex:0];
       }
     }
     else
     {
-      UIView *transparentView = [viewController.navigationController.navigationBar viewWithTag:TRANSPARENT_NAVBAR_TAG];
+      UIView *transparentView = [navigationBar viewWithTag:TRANSPARENT_NAVBAR_TAG];
       if (transparentView)
       {
         [transparentView removeFromSuperview];
-        [viewController.navigationController.navigationBar setBackgroundImage:self.originalNavBarImages[@"bgImage"] forBarMetrics:UIBarMetricsDefault];
-        viewController.navigationController.navigationBar.shadowImage = self.originalNavBarImages[@"shadowImage"];
+        [navigationBar setBackgroundImage:self.originalNavBarImages[@"bgImage"] forBarMetrics:UIBarMetricsDefault];
+        navigationBar.shadowImage = [UIImage new];
         self.originalNavBarImages = nil;
       }
     }
@@ -575,9 +613,9 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   NSNumber *navBarTranslucent = self.navigatorStyle[@"navBarTranslucent"];
   BOOL navBarTranslucentBool = navBarTranslucent ? [navBarTranslucent boolValue] : NO;
   if (navBarTranslucentBool || navBarBlurBool) {
-    viewController.navigationController.navigationBar.translucent = YES;
+    navigationBar.translucent = YES;
   } else {
-    viewController.navigationController.navigationBar.translucent = NO;
+    navigationBar.translucent = NO;
   }
   
   NSNumber *extendedLayoutIncludesOpaqueBars = self.navigatorStyle[@"extendedLayoutIncludesOpaqueBars"];
@@ -623,26 +661,34 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
    }
  }
   
-  NSString *navBarCustomView = self.navigatorStyle[@"navBarCustomView"];
   if (navBarCustomView && ![self.navigationItem.titleView isKindOfClass:[RCCCustomTitleView class]]) {
     if ([self.view isKindOfClass:[RCTRootView class]]) {
-      
+      [viewController.navigationController setNavigationBarHidden:YES animated:NO];
+
       RCTBridge *bridge = ((RCTRootView*)self.view).bridge;
       
       NSDictionary *initialProps = self.navigatorStyle[@"navBarCustomViewInitialProps"];
       RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:navBarCustomView initialProperties:initialProps];
       
-      RCCCustomTitleView *titleView = [[RCCCustomTitleView alloc] initWithFrame:self.navigationController.navigationBar.bounds subView:reactView alignment:self.navigatorStyle[@"navBarComponentAlignment"]];
+      RCCCustomTitleView *titleView = [[RCCCustomTitleView alloc] initWithFrame:navigationBar.bounds subView:reactView alignment:self.navigatorStyle[@"navBarComponentAlignment"]];
       titleView.backgroundColor = [UIColor clearColor];
       reactView.backgroundColor = [UIColor clearColor];
       
-      self.navigationItem.titleView = titleView;
+      UINavigationItem *newItem = [[UINavigationItem alloc] init];
       
-      self.navigationItem.titleView.backgroundColor = [UIColor clearColor];
-      self.navigationItem.titleView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-      self.navigationItem.titleView.clipsToBounds = YES;
+      newItem.titleView = titleView;
+      newItem.titleView.backgroundColor = [UIColor clearColor];
+      newItem.titleView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+      newItem.titleView.clipsToBounds = NO;
+      
+      self.navigationItem.titleView = titleView;
+            
+      [navigationBar setItems:@[newItem]];
+      [viewController.view addSubview:navigationBar];
     }
   }
+  
+  [self.navigationController setNavigationBarHidden:YES animated:NO];
 }
 
 
@@ -697,7 +743,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   } else {
     self._statusBarHidden = NO;
   }
-}
+  }
 
 - (BOOL)hidesBottomBarWhenPushed
 {
@@ -719,7 +765,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
 }
 
 - (void)setNavBarVisibilityChange:(BOOL)animated {
-  [self.navigationController setNavigationBarHidden:[self.navigatorStyle[@"navBarHidden"] boolValue] animated:animated];
+  [self.navigationController setNavigationBarHidden:YES animated:NO];
 }
 
 
@@ -730,7 +776,7 @@ const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
   } else {
     return UIStatusBarStyleDefault;
   }
-}
+  }
 
 - (UIImageView *)findHairlineImageViewUnder:(UIView *)view {
   if ([view isKindOfClass:UIImageView.class] && view.bounds.size.height <= 1.0) {

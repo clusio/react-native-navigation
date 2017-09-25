@@ -334,6 +334,7 @@ RCT_EXPORT_METHOD(
     modifiedGlobalProps[GLOBAL_SCREEN_ACTION_COMMAND_TYPE] = COMMAND_TYPE_SHOW_MODAL;
     
     UIViewController *controller = [RCCViewController controllerWithLayout:layout globalProps:modifiedGlobalProps bridge:[[RCCManager sharedInstance] getBridge]];
+    
     if (controller == nil)
     {
         [RCCManagerModule handleRCTPromiseRejectBlock:reject
