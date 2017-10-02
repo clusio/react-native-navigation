@@ -26,4 +26,8 @@
     <style name="ModalSlideHorizontal">
         <item name="android:windowExitAnimation">@anim/slide_out_right</item>
     </style>
+
+    <style name="ToolbarSubtitleAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">13dp</item>
+    </style>
 </resources>

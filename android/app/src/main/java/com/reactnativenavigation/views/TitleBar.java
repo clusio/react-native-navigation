@@ -7,14 +7,21 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.reactnativenavigation.R;
 import com.reactnativenavigation.params.BaseScreenParams;
 import com.reactnativenavigation.params.BaseTitleBarButtonParams;
 import com.reactnativenavigation.params.StyleParams;
@@ -30,8 +37,39 @@ public class TitleBar extends Toolbar {
     private ActionMenuView actionMenuView;
     private List<TitleBarButtonParams> rightButtons;
 
+    private ImageView logoView;
+    private Spinner spinner;
+
     public TitleBar(Context context) {
         super(context);
+        setVisibility(false);
+
+        int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics());
+        int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
+
+        final LinearLayout extraContent = new LinearLayout(context);
+        extraContent.setOrientation(LinearLayout.HORIZONTAL);
+        extraContent.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        logoView = new ImageView(context);
+        logoView.setLayoutParams(new ActionBar.LayoutParams(width, width));
+        logoView.setPadding(padding, padding, padding, padding);
+        extraContent.addView(logoView);
+
+        spinner = new Spinner(context);
+        ActionBar.LayoutParams spinnerLP = new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, width);
+        spinnerLP.leftMargin = -padding * 2;
+        spinner.setLayoutParams(spinnerLP);
+        //extraContent.addView(spinner);
+
+        extraContent.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                extraContent.setTranslationX(-left);
+            }
+        });
+
+        addView(extraContent);
     }
 
     @Override
@@ -74,12 +112,13 @@ public class TitleBar extends Toolbar {
     }
 
     public void setStyle(StyleParams params) {
-        setVisibility(params.titleBarHidden);
+        setVisibility(params.titleBarHidden || leftButton == null);
         setTitleTextColor(params);
         setTitleTextFont(params);
         setTitleTextFontSize(params);
         setTitleTextFontWeight(params);
         setSubtitleTextColor(params);
+        setSubtitleTextAppearance(getContext(), R.style.ToolbarSubtitleAppearance);
         colorOverflowButton(params);
         setBackground(params);
         centerTitle(params);
@@ -191,8 +230,10 @@ public class TitleBar extends Toolbar {
             leftButton.setIconState(leftButtonParams);
             setNavigationIcon(leftButton);
         } else if (leftButtonParams.hasCustomIcon()) {
-            leftButton.setCustomIcon(leftButtonParams);
-            setNavigationIcon(leftButtonParams.icon);
+            //leftButton.setCustomIcon(leftButtonParams);
+            //setNavigationIcon(leftButtonParams.icon);
+            setContentInsetsAbsolute((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics()), getContentInsetRight());
+            logoView.setImageDrawable(leftButtonParams.icon);
         }
     }
 
@@ -209,7 +250,8 @@ public class TitleBar extends Toolbar {
         setNavigationOnClickListener(leftButton);
 
         if (leftButtonParams.hasCustomIcon()) {
-            setNavigationIcon(leftButtonParams.icon);
+            setContentInsetsAbsolute((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics()), getContentInsetRight());
+            logoView.setImageDrawable(leftButtonParams.icon);
         } else {
             setNavigationIcon(leftButton);
         }
