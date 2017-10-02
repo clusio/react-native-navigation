@@ -97,7 +97,8 @@ navigationController:(UINavigationController*)navigationController
         return;
     }
     
-    if (self.subtitle)
+    
+    if (self.subtitle && !@available(iOS 11, *))
     {
         self.titleView.subtitleLabel = [self setupSubtitle:style];
     }
@@ -163,8 +164,10 @@ navigationController:(UINavigationController*)navigationController
     subtitleLabel.textAlignment = NSTextAlignmentCenter;
     subtitleLabel.backgroundColor = [UIColor clearColor];
     subtitleLabel.autoresizingMask = self.titleView.autoresizingMask;
+    [subtitleLabel setFont:[UIFont systemFontOfSize:11.f]];
+    [subtitleLabel setTextColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.6f]];
     
-    NSMutableDictionary *subtitleAttributes = [RCTHelpers textAttributesFromDictionary:style withPrefix:@"navBarSubtitle" baseFont:[UIFont systemFontOfSize:14.f]];
+    NSMutableDictionary *subtitleAttributes = [RCTHelpers textAttributesFromDictionary:style withPrefix:@"navBarSubtitle" baseFont:[UIFont boldSystemFontOfSize:12.f]];
     [subtitleLabel setAttributedText:[[NSAttributedString alloc] initWithString:self.subtitle attributes:subtitleAttributes]];
     
     CGSize labelSize = [subtitleLabel.text sizeWithAttributes:subtitleAttributes];

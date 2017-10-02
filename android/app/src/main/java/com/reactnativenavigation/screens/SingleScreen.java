@@ -14,6 +14,7 @@ public class SingleScreen extends Screen {
     public SingleScreen(AppCompatActivity activity, ScreenParams screenParams,
                         LeftButtonOnClickListener titleBarBarBackButtonListener) {
         super(activity, screenParams, titleBarBarBackButtonListener);
+
     }
 
     @Override

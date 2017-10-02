@@ -20,7 +20,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.R;
 import com.reactnativenavigation.params.BaseScreenParams;
 import com.reactnativenavigation.params.BaseTitleBarButtonParams;
@@ -241,9 +243,9 @@ public class TitleBar extends Toolbar {
         return leftButton == null && leftButtonParams != null && (leftButtonParams.hasDefaultIcon() || leftButtonParams.hasCustomIcon());
     }
 
-    private void createAndSetLeftButton(TitleBarLeftButtonParams leftButtonParams,
-                                        LeftButtonOnClickListener leftButtonOnClickListener,
-                                        String navigatorEventId,
+    private void createAndSetLeftButton(final TitleBarLeftButtonParams leftButtonParams,
+                                        final LeftButtonOnClickListener leftButtonOnClickListener,
+                                        final String navigatorEventId,
                                         boolean overrideBackPressInJs) {
         leftButton = new LeftButton(getContext(), leftButtonParams, leftButtonOnClickListener, navigatorEventId,
                 overrideBackPressInJs);
@@ -252,6 +254,13 @@ public class TitleBar extends Toolbar {
         if (leftButtonParams.hasCustomIcon()) {
             setContentInsetsAbsolute((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics()), getContentInsetRight());
             logoView.setImageDrawable(leftButtonParams.icon);
+            logoView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getContext(), "hit", Toast.LENGTH_SHORT).show();
+                    NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(leftButtonParams.eventId, navigatorEventId);
+                }
+            });
         } else {
             setNavigationIcon(leftButton);
         }

@@ -8,7 +8,6 @@ import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
-import com.reactnativenavigation.utils.ViewUtils;
 
 class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
 
@@ -84,7 +83,7 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
         if (params.hasDefaultIcon()) {
             setColor(params.color.getColor());
         } else if (params.hasCustomIcon()) {
-            ViewUtils.tintDrawable(params.icon, params.color.getColor(), true);
+            //ViewUtils.tintDrawable(params.icon, params.color.getColor(), true);
         }
     }
 
@@ -93,7 +92,7 @@ class LeftButton extends MaterialMenuDrawable implements View.OnClickListener {
         if (params.hasDefaultIcon()) {
             super.setColor(color);
         } else {
-            ViewUtils.tintDrawable(params.icon, color, true );
+            //ViewUtils.tintDrawable(params.icon, color, true );
         }
     }
 
