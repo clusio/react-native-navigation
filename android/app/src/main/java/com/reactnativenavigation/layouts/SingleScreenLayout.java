@@ -254,7 +254,7 @@ public class SingleScreenLayout extends BaseLayout {
     @Override
     public void dismissLightBox() {
         if (lightBox != null) {
-            lightBox.hide();
+            lightBox.dismiss();
             lightBox = null;
         }
     }
