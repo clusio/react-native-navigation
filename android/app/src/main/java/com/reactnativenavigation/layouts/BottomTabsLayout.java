@@ -317,7 +317,7 @@ public class BottomTabsLayout extends BaseLayout implements AHBottomNavigation.O
     @Override
     public void dismissLightBox() {
         if (lightBox != null) {
-            lightBox.hide();
+            lightBox.dismiss();
             lightBox = null;
         }
     }
