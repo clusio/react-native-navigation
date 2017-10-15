@@ -345,10 +345,17 @@ static CGRect tabBarFrame;
     if (addTabBarView) {
       RCTBridge *bridge = ((RCTRootView*)self.view).bridge;
       RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:addTabBarView initialProperties:nil];
+      
+      
       [reactView setFrame:CGRectMake(0, addTabBarTopOffset.floatValue, tabBarFrame.size.width, tabBarFrame.size.height)];
       [reactView setBackgroundColor:UIColor.clearColor];
       [tabBar addSubview:reactView];
       tabBar.clipsToBounds = NO;
+      
+      UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(procedureTapDetected)];
+      singleTap.numberOfTapsRequired = 1;
+      [reactView setUserInteractionEnabled:YES];
+      [reactView addGestureRecognizer:singleTap];
     }
   }
 }
@@ -357,6 +364,12 @@ static CGRect tabBarFrame;
   [self sendGlobalScreenEvent:@"addProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
   [self sendScreenChangedEvent:@"addProcedure"];
 }
+
+-(void) procedureTapDetected {
+  [self sendGlobalScreenEvent:@"submitProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
+  [self sendScreenChangedEvent:@"submitProcedure"];
+}
+
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -424,7 +437,7 @@ static CGRect tabBarFrame;
   
   NSMutableDictionary *titleTextAttributes = [RCTHelpers textAttributesFromDictionary:self.navigatorStyle withPrefix:@"navBarText" baseFont:[UIFont boldSystemFontOfSize:17]];
   [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
-  
+    
   if (self.navigationItem.titleView && [self.navigationItem.titleView isKindOfClass:[RCCTitleView class]]) {
     RCCTitleView *titleView = (RCCTitleView *)self.navigationItem.titleView;
     RCCTitleViewHelper *helper = [[RCCTitleViewHelper alloc] init:viewController navigationController:viewController.navigationController title:titleView.titleLabel.text subtitle:titleView.subtitleLabel.text titleImageData:nil isSetSubtitle:NO];
