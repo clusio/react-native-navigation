@@ -312,6 +312,33 @@ static CGRect tabBarFrame;
   [super viewDidAppear:animated];
   [self sendGlobalScreenEvent:@"didAppear" endTimestampString:[self getTimestampString] shouldReset:YES];
   [self sendScreenChangedEvent:@"didAppear"];
+
+  CGRect barFrame = self.navigationController.navigationBar.frame;
+  CGFloat originY = self.navigationController.navigationBar.frame.origin.y;
+  if (originY < [UIApplication sharedApplication].statusBarFrame.size.height) {
+    [self.navigationController.navigationBar setFrame:CGRectMake(barFrame.origin.x, [UIApplication sharedApplication].statusBarFrame.size.height, barFrame.size.width, barFrame.size.height)];
+  }
+  
+}
+
+-(void) tapDetected {
+  [self sendGlobalScreenEvent:@"addProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
+  [self sendScreenChangedEvent:@"addProcedure"];
+}
+
+-(void) procedureTapDetected {
+  [self sendGlobalScreenEvent:@"submitProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
+  [self sendScreenChangedEvent:@"submitProcedure"];
+}
+
+
+- (void)viewWillAppear:(BOOL)animated
+{
+  [super viewWillAppear:animated];
+  [self _traverseAndFixScrollViewSafeArea:self.view];
+  [self sendGlobalScreenEvent:@"willAppear" endTimestampString:[self getTimestampString] shouldReset:NO];
+  [self sendScreenChangedEvent:@"willAppear"];
+  [self setStyleOnAppear];
   
   if (self.tabBarController) {
     UIView *parent = self.tabBarController.view;
@@ -345,7 +372,6 @@ static CGRect tabBarFrame;
       RCTBridge *bridge = ((RCTRootView*)self.view).bridge;
       RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:addTabBarView initialProperties:nil];
       
-      
       [reactView setFrame:CGRectMake(0, addTabBarTopOffset.floatValue, tabBarFrame.size.width, tabBarFrame.size.height)];
       [reactView setBackgroundColor:UIColor.clearColor];
       [tabBar addSubview:reactView];
@@ -358,26 +384,6 @@ static CGRect tabBarFrame;
     }
   }
 }
-
--(void) tapDetected {
-  [self sendGlobalScreenEvent:@"addProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
-  [self sendScreenChangedEvent:@"addProcedure"];
-}
-
--(void) procedureTapDetected {
-  [self sendGlobalScreenEvent:@"submitProcedure" endTimestampString:[self getTimestampString] shouldReset:NO];
-  [self sendScreenChangedEvent:@"submitProcedure"];
-}
-
-
-- (void)viewWillAppear:(BOOL)animated
-{
-  [super viewWillAppear:animated];
-  [self _traverseAndFixScrollViewSafeArea:self.view];
-  [self sendGlobalScreenEvent:@"willAppear" endTimestampString:[self getTimestampString] shouldReset:NO];
-  [self sendScreenChangedEvent:@"willAppear"];
-  [self setStyleOnAppear];
-  }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
@@ -409,7 +415,6 @@ static CGRect tabBarFrame;
 
 -(void)setStyleOnAppearForViewController:(UIViewController*)viewController appeared:(BOOL)appeared
 {
-  
   NSString *screenBackgroundColor = self.navigatorStyle[@"screenBackgroundColor"];
   if (screenBackgroundColor) {
     
@@ -682,28 +687,6 @@ static CGRect tabBarFrame;
 
   if (@available(iOS 11, *)) {
     [[UINavigationBar appearance] setPrefersLargeTitles:YES];
-  }
-
-
-  NSString *navBarCustomView = self.navigatorStyle[@"navBarCustomView"];
-  if (navBarCustomView && ![self.navigationItem.titleView isKindOfClass:[RCCCustomTitleView class]]) {
-    if ([self.view isKindOfClass:[RCTRootView class]]) {
-      
-      RCTBridge *bridge = ((RCTRootView*)self.view).bridge;
-      
-      NSDictionary *initialProps = self.navigatorStyle[@"navBarCustomViewInitialProps"];
-      RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:navBarCustomView initialProperties:initialProps];
-      
-      RCCCustomTitleView *titleView = [[RCCCustomTitleView alloc] initWithFrame:self.navigationController.navigationBar.bounds subView:reactView alignment:self.navigatorStyle[@"navBarComponentAlignment"]];
-      titleView.backgroundColor = [UIColor clearColor];
-      reactView.backgroundColor = [UIColor clearColor];
-      
-      self.navigationItem.titleView = titleView;
-      
-      self.navigationItem.titleView.backgroundColor = [UIColor clearColor];
-      self.navigationItem.titleView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-      self.navigationItem.titleView.clipsToBounds = YES;
-    }
   }
 }
 
