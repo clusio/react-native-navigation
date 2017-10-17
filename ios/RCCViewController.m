@@ -285,7 +285,6 @@ static CGRect tabBarFrame;
     dispatch_async(dispatch_get_main_queue(), ^{
       [[(UIScrollView*)view delegate] scrollViewDidEndDecelerating:(id)view];
     });
-    
   }
   
   [view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
