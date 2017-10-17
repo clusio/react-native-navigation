@@ -19,7 +19,7 @@ const NSInteger BLUR_STATUS_TAG = 78264801;
 const NSInteger BLUR_NAVBAR_TAG = 78264802;
 const NSInteger TRANSPARENT_NAVBAR_TAG = 78264803;
 
-@interface RCCViewController() <UIGestureRecognizerDelegate>
+@interface RCCViewController() <UIGestureRecognizerDelegate, UIBarPositioningDelegate>
 @property (nonatomic) BOOL _hidesBottomBarWhenPushed;
 @property (nonatomic) BOOL _statusBarHideWithNavBar;
 @property (nonatomic) BOOL _statusBarHidden;
@@ -378,7 +378,7 @@ static CGRect tabBarFrame;
   [self sendGlobalScreenEvent:@"willAppear" endTimestampString:[self getTimestampString] shouldReset:NO];
   [self sendScreenChangedEvent:@"willAppear"];
   [self setStyleOnAppear];
-}
+  }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
@@ -434,6 +434,7 @@ static CGRect tabBarFrame;
   } else {
     viewController.navigationController.navigationBar.barTintColor = nil;
   }
+
   
   NSMutableDictionary *titleTextAttributes = [RCTHelpers textAttributesFromDictionary:self.navigatorStyle withPrefix:@"navBarText" baseFont:[UIFont boldSystemFontOfSize:17]];
   [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
@@ -784,7 +785,6 @@ static CGRect tabBarFrame;
   [self.navigationController setNavigationBarHidden:[self.navigatorStyle[@"navBarHidden"] boolValue] animated:animated];
 }
 
-
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
   if (self._statusBarTextColorSchemeLight){
@@ -874,5 +874,12 @@ static CGRect tabBarFrame;
   BOOL disabledSimultaneousGestureBool = disabledSimultaneousGesture ? [disabledSimultaneousGesture boolValue] : YES; // make default value of disabledSimultaneousGesture is true
   return !disabledSimultaneousGestureBool;
 }
+
+#pragma mark - UIBarPositionDelegate
+- (UIBarPosition)positionForBar:(id<UIBarPositioning>)bar
+{
+  return UIBarPositionTopAttached;
+}
+
 
 @end
