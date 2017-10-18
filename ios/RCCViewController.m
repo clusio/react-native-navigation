@@ -315,8 +315,13 @@ static CGRect tabBarFrame;
 
   CGRect barFrame = self.navigationController.navigationBar.frame;
   CGFloat originY = self.navigationController.navigationBar.frame.origin.y;
-  if (originY < [UIApplication sharedApplication].statusBarFrame.size.height) {
+  if (originY < [UIApplication sharedApplication].statusBarFrame.size.height && self.tabBarController) {
+    UIView *filler = [[UIView alloc] initWithFrame:CGRectMake(barFrame.origin.x, 0, barFrame.size.width, [UIApplication sharedApplication].statusBarFrame.size.height)];
+    filler.backgroundColor = UIColor.whiteColor;
+    [self.navigationController.view addSubview:filler];
+    
     [self.navigationController.navigationBar setFrame:CGRectMake(barFrame.origin.x, [UIApplication sharedApplication].statusBarFrame.size.height, barFrame.size.width, barFrame.size.height)];
+    
   }
   
 }
@@ -442,7 +447,7 @@ static CGRect tabBarFrame;
   
   NSMutableDictionary *titleTextAttributes = [RCTHelpers textAttributesFromDictionary:self.navigatorStyle withPrefix:@"navBarText" baseFont:[UIFont boldSystemFontOfSize:17]];
   [self.navigationController.navigationBar setTitleTextAttributes:titleTextAttributes];
-    
+  
   if (self.navigationItem.titleView && [self.navigationItem.titleView isKindOfClass:[RCCTitleView class]]) {
     RCCTitleView *titleView = (RCCTitleView *)self.navigationItem.titleView;
     RCCTitleViewHelper *helper = [[RCCTitleViewHelper alloc] init:viewController navigationController:viewController.navigationController title:titleView.titleLabel.text subtitle:titleView.subtitleLabel.text titleImageData:nil isSetSubtitle:NO];
