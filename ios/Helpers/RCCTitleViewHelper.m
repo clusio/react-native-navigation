@@ -86,6 +86,11 @@ navigationController:(UINavigationController*)navigationController
     
     self.viewController.navigationItem.title = self.title;
     
+    if (@available(iOS 11, *)) {
+        // large titles
+        return;
+    }
+    
     if ([self isTitleOnly]) {
         self.viewController.navigationItem.titleView = nil;
         return;
