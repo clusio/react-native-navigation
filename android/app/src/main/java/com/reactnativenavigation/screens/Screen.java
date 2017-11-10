@@ -155,6 +155,9 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     private void createAndAddTopBar() {
         topBar = createTopBar();
+        if (screenParams.screenId == null || !screenParams.screenId.contains("Main")) {
+            topBar.setVisibility(GONE);
+        }
         addTopBar();
     }
 
