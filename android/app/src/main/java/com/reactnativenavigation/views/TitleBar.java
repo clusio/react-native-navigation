@@ -257,7 +257,6 @@ public class TitleBar extends Toolbar {
             logoView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getContext(), "hit", Toast.LENGTH_SHORT).show();
                     NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(leftButtonParams.eventId, navigatorEventId);
                 }
             });
