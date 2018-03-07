@@ -367,20 +367,25 @@ static CGRect tabBarFrame;
   BOOL addTabBarBool = addTabBar ? [addTabBar boolValue] : NO;
   if (addTabBarBool) {
     UIView *parent = self.navigationController.view;
-    UITabBar *tabBar = [[UITabBar alloc] initWithFrame:tabBarFrame];
+    
+    NSNumber *addTabBarTopOffset = self.navigatorStyle[@"addTabBarTopOffset"];
+
+    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, parent.frame.size.height - (tabBarFrame.size.height + addTabBarTopOffset.floatValue), parent.frame.size.width, (tabBarFrame.size.height + addTabBarTopOffset.floatValue))];
+    
+    UITabBar *tabBar = [[UITabBar alloc] initWithFrame:CGRectMake(0, addTabBarTopOffset.floatValue, tabBarFrame.size.width, tabBarFrame.size.height)];
     [tabBar setBackgroundColor:UIColor.whiteColor];
-    [parent addSubview:tabBar];
+    [container addSubview:tabBar];
+    
+    [parent addSubview:container];
     
     NSString *addTabBarView = self.navigatorStyle[@"addTabBarView"];
-    NSNumber *addTabBarTopOffset = self.navigatorStyle[@"addTabBarTopOffset"];
     if (addTabBarView) {
       RCTBridge *bridge = ((RCTRootView*)self.view).bridge;
       RCTRootView *reactView = [[RCTRootView alloc] initWithBridge:bridge moduleName:addTabBarView initialProperties:nil];
       
-      [reactView setFrame:CGRectMake(0, addTabBarTopOffset.floatValue, tabBarFrame.size.width, tabBarFrame.size.height)];
+      [reactView setFrame:CGRectMake(0, 0, tabBarFrame.size.width, tabBarFrame.size.height)];
       [reactView setBackgroundColor:UIColor.clearColor];
-      [tabBar addSubview:reactView];
-      tabBar.clipsToBounds = NO;
+      [container addSubview:reactView];
       
       UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(procedureTapDetected)];
       singleTap.numberOfTapsRequired = 1;
